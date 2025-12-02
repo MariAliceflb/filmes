@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>🎬 Buscador de Filmes - TMDB + OMDB</title>
+<style>
+   body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        #searchInput {
+            flex: 1;
+            max-width: 500px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        #searchBtn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #searchBtn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .movie-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .movie-poster {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        .movie-info {
+            padding: 20px;
+        }
+        .movie-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .movie-year {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .ratings {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .rating {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .tmdb-rating {
+            background: #01b4e4;
+            color: white;
+        }
+        .imdb-rating {
+            background: #f5c518;
+            color: black;
+        }
+        .movie-details {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .detail {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .detail strong {
+            color: #333;
+        }
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            grid-column: 1/-1;
+        }
+        .error {
+            text-align: center;
+            padding: 30px;
+            background: #fee;
+            border-radius: 10px;
+            color: #c33;
+            grid-column: 1/-1;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        margin: 0;
+    }
+    .top-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+    #logoutBtn {
+        padding: 10px 20px;
+        background: #ff3b3b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    #logoutBtn:hover {
+        background: #d62828;
+        transform: scale(1.05);
+    }
+   
+</style>
+</head>
+<body>
+
+    <!-- 🔹 Botão Logout no topo -->
+    <div class="top-bar">
+        <button id="logoutBtn" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="container">
+        <h1>🎬 Buscador de Filmes</h1>
+        <p class="subtitle">Integração com TMDB (imagens) e OMDB (detalhes)</p>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Digite o nome do filme...">
+            <button id="searchBtn" onclick="searchMovies()">Buscar Filme</button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="loader"></div>
+            <p>Buscando filmes nas APIs...</p>
+        </div>
+        
+        <div id="resultsContainer" class="movies-grid"></div>
+
+        <footer>
+            <p>Dados fornecidos por TMDB e OMDB</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } 
+        from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDg9PjSTisEkRG64MLDTzw4sz7Ta1yXGSU",
+            authDomain: "anime-info-4024e.firebaseapp.com",
+            databaseURL: "https://anime-info-4024e-default-rtdb.firebaseio.com",
+            projectId: "anime-info-4024e",
+            storageBucket: "anime-info-4024e.firebasestorage.app",
+            messagingSenderId: "176781942544",
+            appId: "1:176781942544:web:d40f69b9c3ae967212cf95",
+            measurementId: "G-1M0KN91M26"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 🔐 Proteção da página
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            }
+        });
+
+        // 🔴 Logout
+        window.logout = function () {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        };
+    </script>
+
+    <!-- Seu JavaScript original da busca permanece -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const loading = document.getElementById('loading');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMovies();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            searchMovies();
+        });
+
+        async function searchMovies() {
+            const query = searchInput.value.trim();
+            
+            if (!query) {
+                alert('Digite o nome de um filme');
+                return;
+            }
+
+            showLoading(true);
+            clearResults();
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/movies/search?query=${encodeURIComponent(query)}`);
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+
+                const movies = await response.json();
+                displayMovies(movies);
+                
+            } catch (error) {
+                showError(`Erro na busca: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayMovies(movies) {
+            if (!movies || movies.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>Nenhum filme encontrado</h3>
+                        <p>Tente buscar por outro nome</p>
+                    </div>`;
+                return;
+            }
+
+            let html = "";
+            movies.forEach(movie => {
+                const poster = movie.poster || 'https://via.placeholder.com/500x750/ccc/333?text=Sem+Poster';
+                const year = movie.year ? `(${movie.year})` : '';
+                
+                html += `
+                    <div class="movie-card">
+                        <img src="${poster}" class="movie-poster">
+                        <div class="movie-info">
+                            <h3 class="movie-title">${movie.title} ${year}</h3>
+                        </div>
+                    </div>`;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        function clearResults() {
+            resultsContainer.innerHTML = '';
+        }
+
+        function showError(message) {
+            resultsContainer.innerHTML = `
+                <div class="error">
+                    <h3>Erro na busca</h3>
+                    <p>${message}</p>
+                    <p>Verifique o backend</p>
+                </div>`;
+        }
+    </script>
+
+</body>
+</html>

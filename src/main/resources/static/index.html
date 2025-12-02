@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login - Purple Neon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    body {
+        background: radial-gradient(circle at top, #3a0066, #000);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        color: #fff;
+    }
+
+    .particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .particles span {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background: #b84bff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #d08dff;
+        animation: float 6s linear infinite;
+        opacity: 0.8;
+    }
+
+    @keyframes float {
+        from { transform: translateY(100vh) scale(0.5); }
+        to { transform: translateY(-10vh) scale(1); }
+    }
+
+    .container {
+        position: relative;
+        width: 380px;
+        backdrop-filter: blur(12px);
+        border: 2px solid rgba(255,255,255,0.1);
+        background: rgba(0, 0, 0, 0.4);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 0 25px #8c00ff;
+        z-index: 2;
+    }
+
+    .container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 26px;
+        color: #d69bff;
+        text-shadow: 0 0 10px #b100ff;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        background: #1a0033;
+        color: #fff;
+        font-size: 15px;
+        box-shadow: inset 0 0 12px #5e0080;
+    }
+
+    .input-group label {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        color: #c6a2ff;
+        font-size: 14px;
+        transition: .3s;
+        pointer-events: none;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+        top: -10px;
+        font-size: 12px;
+        color: #e8b3ff;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #9d00ff, #550075);
+        color: #fff;
+        font-size: 17px;
+        cursor: pointer;
+        box-shadow: 0 0 15px #a300ff;
+        transition: .3s;
+    }
+
+    button:hover {
+        box-shadow: 0 0 25px #d08dff;
+        transform: scale(1.03);
+    }
+
+    .toggle {
+        text-align: center;
+        margin-top: 15px;
+        color: #e3c4ff;
+    }
+
+    .toggle span {
+        color: #c47dff;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    #cadastro {
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="particles"></div>
+
+<script>
+    const particlesDiv = document.querySelector('.particles');
+    for (let i = 0; i < 40; i++) {
+        let s = document.createElement('span');
+        s.style.left = Math.random() * 100 + "%";
+        s.style.animationDuration = (Math.random() * 4 + 3) + "s";
+        s.style.opacity = Math.random();
+        particlesDiv.appendChild(s);
+    }
+</script>
+
+<!-- LOGIN -->
+<div class="container" id="login">
+    <h2>Login</h2>
+
+    <div class="input-group">
+        <input type="email" id="loginEmail" required placeholder=" ">
+        <label>Email</label>
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="loginSenha" required placeholder=" ">
+        <label>Senha</label>
+    </div>
+
+    <button onclick="login()">Entrar</button>
+
+    <p class="toggle">Não tem conta? <span onclick="trocarTela('cadastro')">Cadastrar</span></p>
+</div>
+
+<!-- CADASTRO -->
+<div class="container" id="cadastro" style="display:none;">
+    <h2>Cadastrar</h2>
+
+    <div class="input-group">
+        <input type="email" id="cadEmail" required placeholder=" ">
+        <label>Email</label>
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="cadSenha" required placeholder=" ">
+        <label>Senha</label>
+    </div>
+
+    <button onclick="cadastrar()">Criar Conta</button>
+
+    <p class="toggle">Já possui conta? <span onclick="trocarTela('login')">Entrar</span></p>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDg9PjSTisEkRG64MLDTzw4sz7Ta1yXGSU",
+        authDomain: "anime-info-4024e.firebaseapp.com",
+        databaseURL: "https://anime-info-4024e-default-rtdb.firebaseio.com",
+        projectId: "anime-info-4024e",
+        storageBucket: "anime-info-4024e.firebasestorage.app",
+        messagingSenderId: "176781942544",
+        appId: "1:176781942544:web:d40f69b9c3ae967212cf95",
+        measurementId: "G-1M0KN91M26"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    function trocarTela(tela) {
+        document.getElementById('login').style.display = tela === 'login' ? 'block' : 'none';
+        document.getElementById('cadastro').style.display = tela === 'cadastro' ? 'block' : 'none';
+    }
+
+    window.cadastrar = async function() {
+        const email = document.getElementById('cadEmail').value;
+        const senha = document.getElementById('cadSenha').value;
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, senha);
+            alert("Conta criada com sucesso!");
+            trocarTela('login');
+        } catch (error) {
+            alert("Erro: " + error.message);
+        }
+    }
+
+    window.login = async function () {
+        const email = document.getElementById('loginEmail').value;
+        const senha = document.getElementById('loginSenha').value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, senha);
+            window.location.href = "dashboard.html";
+        } catch (error) {
+            alert("Erro: " + error.message);
+        }
+    }
+</script>
+
+</body>
+</html>
